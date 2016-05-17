@@ -28,9 +28,15 @@ def save_cache(hog_feature_cache):
     pickle.dump(hog_feature_cache, hog_feature_file)
     hog_feature_file.close()
 
+def load_test_feature(img_data_path, hog_feature_cache):
+    return load_feature_from_range(img_data_path, hog_feature_cache, range(8, 11))
 
-def load_train_feature(img_data_path, hog_feature_cache, limit=-1):
-    img_num_every_person = 10
+
+def load_train_feature(img_data_path, hog_feature_cache):
+    return load_feature_from_range(img_data_path, hog_feature_cache, range(1, 8))
+
+
+def load_feature_from_range(img_data_path, hog_feature_cache, num_range):
     x_feature = []
     y = []
     relevant_image_path_list = []
@@ -38,33 +44,24 @@ def load_train_feature(img_data_path, hog_feature_cache, limit=-1):
 
     logging.info("start to check the train image")
     for dir in type_dir_list:
-        images = sorted([x for x in os.listdir("%s/%s" % (img_data_path, dir)) if x.endswith(".pgm")])
-        if len(images) != img_num_every_person:
-            logging.warning("the type of %s train images number:%d is not equal to %d, it's incorrect"
-                            % (dir, len(images), img_num_every_person))
-        else:
-            logging.info("the type of %s train images number:%d is equal to %d, it's correct"
-                            % (dir, len(images), img_num_every_person))
+        images = ["%s.pgm" % x for x in num_range]
         for img in images:
             img_path = "%s/%s" % (dir, img)
-            relevant_image_path_list.append(img_path)
-            y.append(dir)
+            if not os.path.exists("%s/%s" % (img_data_path, img_path)):
+                logging.error("img %s do not exist" % img_path)
+            else:
+                relevant_image_path_list.append(img_path)
+                y.append(dir)
 
     logging.info("check the train image end")
 
     logging.info("start to load feature from train image")
-    count = 0
     for relevant_image_path in relevant_image_path_list:
-        if count >= limit > 0:
-            break
-        if count % 1000 == 0:
-            logging.info("extract %s th image feature now" % count)
-        count += 1
         full_path = "%s/%s" % (img_data_path, relevant_image_path)
         x_feature.append(extract_feature(full_path, hog_feature_cache))
     logging.info("load feature from train image end")
 
-    return relevant_image_path_list[:count], x_feature[:count], y[:count]
+    return relevant_image_path_list, x_feature, y
 
 def extract_feature(img_path, hog_feature_cache):
     img_name = "/".join(img_path.split("/")[-2:])

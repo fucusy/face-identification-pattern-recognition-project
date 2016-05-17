@@ -29,7 +29,10 @@ or contact fucus@qq.com to get one
 
 ## evaluation
 
-using leave one out, [cross validation method](http://scikit-learn.org/stable/modules/cross_validation.html#cross-validation), cv = 2, it means, using 50% data to train your model, using 50% data to test your model
+training set: 70%
+test set: 30%
+
+recall and precision
 
 #Idea
 
@@ -39,4 +42,4 @@ using leave one out, [cross validation method](http://scikit-learn.org/stable/mo
 
 | submit date | name      | off f1-score    |   compare   |feature                  | model   | other trick                                   | comments                |
 | ----------  |--------   |----             | ------------|-------------------------|---------|-----------------------------------------------|----------               |
-| 2016-05-16  | chenqiang |   0.90          |   0         |   hog                   | forest  |                                               |                .        |
+| 2016-05-16  | chenqiang |   0.95          |   0         |   hog                   | forest  | best param, {'n_estimators': 200}             |                         |

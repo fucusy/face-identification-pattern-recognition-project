@@ -5,10 +5,10 @@ import logging
 import sys
 import datetime
 from config import Project
-from feature.utility import load_train_feature
+from feature.utility import *
 from feature.utility import load_cache
 from feature.utility import save_cache
-
+from sklearn.metrics import classification_report
 
 hog_feature_cache = {}
 
@@ -25,7 +25,6 @@ if __name__ == '__main__':
     FORMAT = '%(asctime)-12s[%(levelname)s] %(message)s'
     logging.basicConfig(level=level, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S')
 
-    train_num = -1
 
     start_time = datetime.datetime.now()
     logging.info('start program---------------------')
@@ -34,12 +33,23 @@ if __name__ == '__main__':
     logging.info("load feature cache end")
 
     logging.info("load train data feature now")
-    train_img_relevant_paths, train_x_feature, train_y = load_train_feature(Project.train_img_folder_path, hog_feature_cache, train_num)
+    train_img_relevant_paths, train_x_feature, train_y = load_train_feature(Project.train_img_folder_path,
+                                                                            hog_feature_cache)
     logging.info("extract train data feature done")
 
     logging.info("start to train the model")
     Project.predict_model.fit(x_train=train_x_feature, y_train=train_y)
     logging.info("train the model done")
+
+    test_img_relevant_paths, test_x_feature, test_y = load_test_feature(Project.train_img_folder_path,
+                                                                            hog_feature_cache)
+
+    logging.info("start to predict")
+    predict = Project.predict_model.predict(test_x_feature)
+    logging.info("predict end")
+
+    report = classification_report(test_y, predict)
+    logging.info("the cross validation report:\n %s" % report)
 
     if Project.save_cache:
         logging.info("saving feature cache now")
